@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <ctype.h>
+int top = -1;
+char stack[100];
+char pop(){
+	char data = -1;
+	if(top == -1){
+		return;
+	}
+	else{
+		data = stack[top];
+		top--;
+	}
+	return data;
+}
+int order(char op){
+	if(op == '^')
+		return 3;
+	else if(op == '*' || op == '/')
+		return 2;
+	else if(op == '+' || op == '-')
+		return 1;
+	else
+		return 0;
+}
+int isOp(char ch){
+	return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
+}
+void infixToPostfix(char infix[], char postfix[]){
+	int i=0,j=0;
+	while(infix[i]!='\0'){
+		if(isdigit(infix[i])){
+			postfix[j++]=infix[i++];
+		}
+		else if(infix[i] == '('){
+			stack[++top] = infix[i++];
+		}
+		else if(infix[i] == ')'){
+			while(top != -1 && stack[top] != '('){
+				postfix[j++]=pop();
+			}
+			top--;
+			i++;
+		}
+		else if(isOp(infix[i])){
+			while(top != -1 && order(stack[top]) >= order(infix[i])){
+				postfix[j++] = pop();
+			}
+			stack[++top] = infix[i++];
+		}
+		
+	}
+	while(top != -1){
+		postfix[j++] = stack[top--];	
+	}
+	postfix[j] = '\0';
+}
+int compute(int op1, int op2, char op){
+	switch(op){
+		case '^' : return pow(op1,op2);
+		case '*' : return op1*op2;
+		case '/' : return op1/op2;
+		case '+' : return op1+op2;
+		case '-' : return op1-op2;
+		default : return 0;
+	}
+		
+}
+
+int evaluate(char postfix[]){
+	int stack[100], i, op1, op2, ans;
+	for(i=0;postfix[i] != '\0'; i++){
+		char item = postfix[i];
+		if(isOp(item)){
+			op2 = pop();
+			op1 = pop();
+			ans = compute(op1,op2,item);
+			stack[++top] = ans;
+		}
+		else{
+			stack[++top] = item - '0'; //convert to number;
+		}
+	}
+	int result = stack[top];
+	return result;
+}
+int main(){
+	int i,r;
+	char infix[100];
+	char postfix[100];
+	printf("Enter infix: ");
+	scanf(" %s",infix);
+	infixToPostfix(infix,postfix);
+	printf("Postfix: %c\n",postfix);
+//	for()
+	
+	return 0;
+}
