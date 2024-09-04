@@ -2,99 +2,114 @@
 #include <stdlib.h>
 #include <math.h>
 #include <ctype.h>
+
+#define MAX 100
+
 int top = -1;
-char stack[100];
-char pop(){
-	char data = -1;
-	if(top == -1){
-		return;
-	}
-	else{
-		data = stack[top];
-		top--;
-	}
-	return data;
-}
-int order(char op){
-	if(op == '^')
-		return 3;
-	else if(op == '*' || op == '/')
-		return 2;
-	else if(op == '+' || op == '-')
-		return 1;
-	else
-		return 0;
-}
-int isOp(char ch){
-	return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
-}
-void infixToPostfix(char infix[], char postfix[]){
-	int i=0,j=0;
-	while(infix[i]!='\0'){
-		if(isdigit(infix[i])){
-			postfix[j++]=infix[i++];
-		}
-		else if(infix[i] == '('){
-			stack[++top] = infix[i++];
-		}
-		else if(infix[i] == ')'){
-			while(top != -1 && stack[top] != '('){
-				postfix[j++]=pop();
-			}
-			top--;
-			i++;
-		}
-		else if(isOp(infix[i])){
-			while(top != -1 && order(stack[top]) >= order(infix[i])){
-				postfix[j++] = pop();
-			}
-			stack[++top] = infix[i++];
-		}
-		
-	}
-	while(top != -1){
-		postfix[j++] = stack[top--];	
-	}
-	postfix[j] = '\0';
-}
-int compute(int op1, int op2, char op){
-	switch(op){
-		case '^' : return pow(op1,op2);
-		case '*' : return op1*op2;
-		case '/' : return op1/op2;
-		case '+' : return op1+op2;
-		case '-' : return op1-op2;
-		default : return 0;
-	}
-		
+char stack[MAX];
+
+// Function to push an element onto the stack
+void push(char data) {
+    if (top < MAX - 1) {
+        stack[++top] = data;
+    } else {
+        printf("Stack overflow\n");
+    }
 }
 
-int evaluate(char postfix[]){
-	int stack[100], i, op1, op2, ans;
-	for(i=0;postfix[i] != '\0'; i++){
-		char item = postfix[i];
-		if(isOp(item)){
-			op2 = pop();
-			op1 = pop();
-			ans = compute(op1,op2,item);
-			stack[++top] = ans;
-		}
-		else{
-			stack[++top] = item - '0'; //convert to number;
-		}
-	}
-	int result = stack[top];
-	return result;
+// Function to pop an element from the stack
+char pop() {
+    if (top == -1) {
+        printf("Stack underflow\n");
+        return -1;
+    } else {
+        return stack[top--];
+    }
 }
-int main(){
-	int i,r;
-	char infix[100];
-	char postfix[100];
-	printf("Enter infix: ");
-	scanf(" %s",infix);
-	infixToPostfix(infix,postfix);
-	printf("Postfix: %c\n",postfix);
-//	for()
-	
-	return 0;
+
+// Function to determine the precedence of operators
+int order(char op) {
+    if (op == '^')
+        return 3;
+    else if (op == '*' || op == '/')
+        return 2;
+    else if (op == '+' || op == '-')
+        return 1;
+    else
+        return 0;
+}
+
+// Function to check if a character is an operator
+int isOp(char ch) {
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
+}
+
+// Function to convert infix expression to postfix expression
+void infixToPostfix(char infix[], char postfix[]) {
+    int i = 0, j = 0;
+    while (infix[i] != '\0') {
+        if (isdigit(infix[i])) {
+            postfix[j++] = infix[i++];
+        } else if (infix[i] == '(') {
+            push(infix[i++]);
+        } else if (infix[i] == ')') {
+            while (top != -1 && stack[top] != '(') {
+                postfix[j++] = pop();
+            }
+            top--; // Remove '(' from stack
+            i++;
+        } else if (isOp(infix[i])) {
+            while (top != -1 && order(stack[top]) >= order(infix[i])) {
+                postfix[j++] = pop();
+            }
+            push(infix[i++]);
+        }
+    }
+    while (top != -1) {
+        postfix[j++] = pop();
+    }
+    postfix[j] = '\0';
+}
+
+// Function to perform arithmetic operations
+int compute(int op1, int op2, char op) {
+    switch (op) {
+        case '^' : return pow(op1, op2);
+        case '*' : return op1 * op2;
+        case '/' : return op1 / op2;
+        case '+' : return op1 + op2;
+        case '-' : return op1 - op2;
+        default  : return 0;
+    }
+}
+
+// Function to evaluate the postfix expression
+int evaluate(char postfix[]) {
+    int stack[MAX], i, op1, op2, ans;
+    top = -1; // Reset top for the integer stack
+    for (i = 0; postfix[i] != '\0'; i++) {
+        char item = postfix[i];
+        if (isOp(item)) {
+            op2 = pop();  // Right operand
+            op1 = pop();  // Left operand
+            ans = compute(op1, op2, item);
+            push(ans);
+        } else {
+            push(item - '0'); // Convert to number and push to stack
+        }
+    }
+    return pop(); // The final result will be the only element left in stack
+}
+
+int main() {
+    char infix[MAX];
+    char postfix[MAX];
+    printf("Enter infix: ");
+    scanf("%s", infix);
+    infixToPostfix(infix, postfix);
+    printf("Postfix: %s\n", postfix);
+    int result = evaluate(postfix);
+    printf("Result: %d\n", result);
+
+    return 0;
 }
