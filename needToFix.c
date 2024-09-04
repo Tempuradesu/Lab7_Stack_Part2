@@ -8,7 +8,6 @@
 int top = -1;
 char stack[MAX];
 
-// Function to push an element onto the stack
 void push(char data) {
     if (top < MAX - 1) {
         stack[++top] = data;
@@ -17,7 +16,6 @@ void push(char data) {
     }
 }
 
-// Function to pop an element from the stack
 char pop() {
     if (top == -1) {
         printf("Stack underflow\n");
@@ -27,7 +25,7 @@ char pop() {
     }
 }
 
-// Function to determine the precedence of operators
+
 int order(char op) {
     if (op == '^')
         return 3;
@@ -39,12 +37,12 @@ int order(char op) {
         return 0;
 }
 
-// Function to check if a character is an operator
+
 int isOp(char ch) {
     return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
 }
 
-// Function to convert infix expression to postfix expression
+
 void infixToPostfix(char infix[], char postfix[]) {
     int i = 0, j = 0;
     while (infix[i] != '\0') {
@@ -71,7 +69,7 @@ void infixToPostfix(char infix[], char postfix[]) {
     postfix[j] = '\0';
 }
 
-// Function to perform arithmetic operations
+
 int compute(int op1, int op2, char op) {
     switch (op) {
         case '^' : return pow(op1, op2);
@@ -83,7 +81,7 @@ int compute(int op1, int op2, char op) {
     }
 }
 
-// Function to evaluate the postfix expression
+
 int evaluate(char postfix[]) {
     int stack[MAX], i, op1, op2, ans;
     top = -1; // Reset top for the integer stack
